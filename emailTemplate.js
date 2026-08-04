@@ -1,19 +1,24 @@
 const STATUS_STEPS = ['order_placed', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
 
-// Same line-style icon geometry used on tracking.html's progress track and the homepage
-// service-icon SVGs (24x24 viewBox, thin stroke, no fill). Rendered as inline <svg> markup
-// rather than data-URI images, since Gmail strips base64-embedded <img> sources but does
-// render inline SVG in the message body.
-const ICON_PATHS = {
-  box: '<path d="M4 8L12 4L20 8L12 12L4 8Z" /><path d="M4 8V16L12 20L20 16V8" /><path d="M12 12V20" />',
-  tag: '<path d="M20 12L12 20L4 12V4H12L20 12Z" /><circle cx="8" cy="8" r="1.6" />',
-  truck: '<path d="M2.5 7H13.5V16H2.5Z" /><path d="M13.5 10H17.5L20.5 13V16H13.5Z" /><circle cx="6.5" cy="18" r="1.6" /><circle cx="16.5" cy="18" r="1.6" />',
-  truckMotion: '<path d="M4.5 7H15.5V16H4.5Z" /><path d="M15.5 10H19.5L22.5 13V16H15.5Z" /><circle cx="8.5" cy="18" r="1.6" /><circle cx="18.5" cy="18" r="1.6" /><path d="M1 9H2.5M0.5 12H2M1 15H2.5" />',
-  check: '<path d="M5 12.5L9.5 17L19 7" />',
+// Icons are hosted PNGs (public/icons/{icon}-{color}.png, served statically by server.js)
+// rather than inline SVG or data-URI images — Gmail strips base64-embedded <img> sources
+// and doesn't reliably render inline SVG on mobile, so a real hosted image is the most
+// broadly compatible option once the backend has a live domain.
+const ICON_BASE_URL = 'https://rezoro-express-backend.onrender.com/icons';
+
+// Maps each step's internal icon key to its filename prefix (public/icons uses all-lowercase
+// names, e.g. "truckmotion-red.png", while the icon key here stays camelCase for readability).
+const ICON_FILE_NAMES = {
+  box: 'box',
+  tag: 'tag',
+  truck: 'truck',
+  truckMotion: 'truckmotion',
+  check: 'check',
 };
 
-function renderIconSvg(iconKey, color) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter" style="display:block;">${ICON_PATHS[iconKey]}</svg>`;
+function renderIconImg(iconKey, color) {
+  const src = `${ICON_BASE_URL}/${ICON_FILE_NAMES[iconKey]}-${color}.png`;
+  return `<img src="${src}" width="20" height="20" alt="" style="display:block; width:20px; height:20px; border:0;" />`;
 }
 
 const STEP_META = [
@@ -72,9 +77,9 @@ function stepState(index, currentIndex) {
 }
 
 const STATE_COLORS = {
-  complete: { badgeBg: '#0a2344', border: '#0a2344', line: '#0a2344', icon: '#ffffff', labelColor: '#11233a' },
-  current: { badgeBg: '#ffffff', border: '#b93425', line: '#b93425', icon: '#b93425', labelColor: '#b93425' },
-  upcoming: { badgeBg: '#ffffff', border: '#bdc8d0', line: '#bdc8d0', icon: '#4e5f73', labelColor: '#4e5f73' },
+  complete: { badgeBg: '#0a2344', border: '#0a2344', line: '#0a2344', icon: 'white', labelColor: '#11233a' },
+  current: { badgeBg: '#ffffff', border: '#b93425', line: '#b93425', icon: 'red', labelColor: '#b93425' },
+  upcoming: { badgeBg: '#ffffff', border: '#bdc8d0', line: '#bdc8d0', icon: 'gray', labelColor: '#4e5f73' },
 };
 
 function renderStep(meta, index, currentIndex, isFirst, isLast) {
@@ -82,7 +87,7 @@ function renderStep(meta, index, currentIndex, isFirst, isLast) {
   const colors = STATE_COLORS[state];
   const leftLineColor = isFirst ? '#ffffff' : STATE_COLORS[stepState(index - 1, currentIndex)].line;
   const rightLineColor = isLast ? '#ffffff' : colors.line;
-  const iconSvg = renderIconSvg(meta.icon, colors.icon);
+  const iconImg = renderIconImg(meta.icon, colors.icon);
   const [labelTop, labelBottom] = meta.lines;
   const labelHtml = labelBottom ? `${labelTop}<br />${labelBottom}` : labelTop;
 
@@ -93,7 +98,7 @@ function renderStep(meta, index, currentIndex, isFirst, isLast) {
           <td width="39" style="width:39px; height:2px; font-size:0; line-height:0; background-color:${leftLineColor};">&nbsp;</td>
           <td width="32" style="width:32px;">
             <table role="presentation" width="32" cellpadding="0" cellspacing="0" border="0" style="width:32px;">
-              <tr><td width="32" height="32" bgcolor="${colors.badgeBg}" align="center" valign="middle" style="width:32px; height:32px; background-color:${colors.badgeBg}; border:2px solid ${colors.border}; border-radius:16px; text-align:center; vertical-align:middle;">${iconSvg}</td></tr>
+              <tr><td width="32" height="32" bgcolor="${colors.badgeBg}" align="center" valign="middle" style="width:32px; height:32px; background-color:${colors.badgeBg}; border:2px solid ${colors.border}; border-radius:16px; text-align:center; vertical-align:middle;">${iconImg}</td></tr>
             </table>
           </td>
           <td width="39" style="width:39px; height:2px; font-size:0; line-height:0; background-color:${rightLineColor};">&nbsp;</td>

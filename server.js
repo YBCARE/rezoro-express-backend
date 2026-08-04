@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -25,6 +26,7 @@ pool.on('error', (err) => {
 
 app.use(cors());
 app.use(express.json());
+app.use('/icons', express.static(path.join(__dirname, 'public', 'icons')));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
