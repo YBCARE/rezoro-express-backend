@@ -21,6 +21,14 @@ function renderIconImg(iconKey, color) {
   return `<img src="${src}" width="20" height="20" alt="" style="display:block; width:20px; height:20px; border:0;" />`;
 }
 
+// "Complete" steps use a single full-badge image (navy circle + white icon combined,
+// transparent corners) instead of a separately-drawn td circle with a small icon inside —
+// so no bgcolor/border is needed on the cell for this state.
+function renderCompleteBadgeImg(iconKey) {
+  const src = `${ICON_BASE_URL}/badge-complete-${ICON_FILE_NAMES[iconKey]}.png`;
+  return `<img src="${src}" width="32" height="32" alt="" style="display:block; width:32px; height:32px; border:0;" />`;
+}
+
 const STEP_META = [
   { key: 'order_placed', icon: 'box', lines: ['Order', 'placed'] },
   { key: 'picked_up', icon: 'tag', lines: ['Picked', 'up'] },
@@ -87,9 +95,12 @@ function renderStep(meta, index, currentIndex, isFirst, isLast) {
   const colors = STATE_COLORS[state];
   const leftLineColor = isFirst ? '#ffffff' : STATE_COLORS[stepState(index - 1, currentIndex)].line;
   const rightLineColor = isLast ? '#ffffff' : colors.line;
-  const iconImg = renderIconImg(meta.icon, colors.icon);
   const [labelTop, labelBottom] = meta.lines;
   const labelHtml = labelBottom ? `${labelTop}<br />${labelBottom}` : labelTop;
+
+  const badgeCell = state === 'complete'
+    ? `<td width="32" height="32" align="center" valign="middle" style="width:32px; height:32px; text-align:center; vertical-align:middle;">${renderCompleteBadgeImg(meta.icon)}</td>`
+    : `<td width="32" height="32" bgcolor="${colors.badgeBg}" align="center" valign="middle" style="width:32px; height:32px; background-color:${colors.badgeBg}; border:2px solid ${colors.border}; border-radius:16px; text-align:center; vertical-align:middle;">${renderIconImg(meta.icon, colors.icon)}</td>`;
 
   return `
     <td width="20%" align="center" valign="top">
@@ -98,7 +109,7 @@ function renderStep(meta, index, currentIndex, isFirst, isLast) {
           <td width="39" style="width:39px; height:2px; font-size:0; line-height:0; background-color:${leftLineColor};">&nbsp;</td>
           <td width="32" style="width:32px;">
             <table role="presentation" width="32" cellpadding="0" cellspacing="0" border="0" style="width:32px;">
-              <tr><td width="32" height="32" bgcolor="${colors.badgeBg}" align="center" valign="middle" style="width:32px; height:32px; background-color:${colors.badgeBg}; border:2px solid ${colors.border}; border-radius:16px; text-align:center; vertical-align:middle;">${iconImg}</td></tr>
+              <tr>${badgeCell}</tr>
             </table>
           </td>
           <td width="39" style="width:39px; height:2px; font-size:0; line-height:0; background-color:${rightLineColor};">&nbsp;</td>
