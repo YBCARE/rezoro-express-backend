@@ -76,20 +76,13 @@ function handleLogin(req, res) {
   }
   recordLoginAttempt(ip);
 
-  const configuredPassword = process.env.ADMIN_PASSWORD;
+  // Trimmed on both sides: a stray trailing space/newline in an env var (very easy to
+  // introduce via copy-paste into a dashboard field) or in what's typed shouldn't be able
+  // to cause a silent, hard-to-diagnose login failure.
+  const configuredPassword = (process.env.ADMIN_PASSWORD || '').trim();
+  const submittedPassword = (password || '').trim();
 
-  // TEMPORARY diagnostic — logs lengths only, never the actual password value, to help
-  // pin down a persistent "incorrect password" report without exposing any secret.
-  // Remove once the login issue is confirmed fixed.
-  console.log(
-    `[admin login debug] received length=${password ? password.length : 0}` +
-    `, received trimmed length=${password ? password.trim().length : 0}` +
-    `, configured length=${configuredPassword ? configuredPassword.length : 0}` +
-    `, configured trimmed length=${configuredPassword ? configuredPassword.trim().length : 0}` +
-    `, bodyKeys=${req.body ? Object.keys(req.body).join(',') : 'none'}` +
-    `, contentType=${req.headers['content-type']}`
-  );
-  if (!configuredPassword || !password || !constantTimeEquals(password, configuredPassword)) {
+  if (!configuredPassword || !submittedPassword || !constantTimeEquals(submittedPassword, configuredPassword)) {
     return res.status(401).send(renderLoginError('Incorrect password.'));
   }
 
