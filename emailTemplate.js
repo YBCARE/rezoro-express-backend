@@ -227,6 +227,16 @@ function buildStatusUpdateEmail({
             </td>
           </tr>
 
+          <!-- Animated route banner: a small looping GIF (own line-art style, matching the
+               truck/route icons used throughout — not modeled on any third-party courier's
+               illustration). Static GIF first-frame fallback is the same truck-on-a-route
+               art, so clients that don't animate GIFs still show something sensible. -->
+          <tr>
+            <td align="center" style="padding:20px 25px 0; background-color:#ffffff;">
+              <img src="https://rezoro-express-backend.onrender.com/icons/truck-loop.gif" width="300" height="100" alt="" style="display:block; width:300px; height:100px; max-width:100%; border:0;" />
+            </td>
+          </tr>
+
           <tr>
             <td class="stack-padding" style="padding:18px 25px 0; font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:19px; color:#4e5f73; border-bottom:1px solid #d8dde2; padding-bottom:18px;">
               Summary: Shipment ${trackingNumber} is <strong style="color:#11233a;">${statusLabelLower}</strong>, last scanned in ${lastLocation}, and is estimated to arrive <strong style="color:#11233a;">${estimatedDeliveryText}</strong>. Track it at the link below.
